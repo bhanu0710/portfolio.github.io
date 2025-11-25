@@ -7,13 +7,12 @@
     <script type="text/javascript">
       // Single Page Apps for GitHub Pages
       // https://github.com/rafgraph/spa-github-pages
-      // This script checks to see if a redirect is present in the query string,
-      // converts it back into the correct url and adds it to the
-      // browser's history using window.history.replaceState(...),
-      // which won't cause the browser to attempt to load the new url.
-      // When the single page app is loaded further down in this file,
-      // the correct url will be waiting in the browser's history for
-      // the single page app to route accordingly.
+      // This script takes the current url and converts the path and query
+      // string into just a query string, and then redirects the browser
+      // to the new url with only a query string and hash fragment,
+      // e.g., https://www.foo.com/path/to/page/one?bar=1&baz=2 becomes
+      // https://www.foo.com/404.html?/path/to/page/one&bar=1&baz=2
+      // This allows the React Router to handle the route properly.
       (function(l) {
         if (l.search[1] === '/' ) {
           var decoded = l.search.slice(1).split('&').map(function(s) { 
@@ -30,22 +29,27 @@
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
     <script type="text/javascript">
-      // Redirect to index.html with the path as a query parameter
+      // Redirect to index.html with the current path as a query parameter
       var path = window.location.pathname;
       var search = window.location.search;
       var hash = window.location.hash;
       
-      // Only redirect if we're not already at index.html
-      if (path !== '/' && !path.endsWith('index.html')) {
-        var redirectPath = path.slice(1).replace(/\//g, '/');
-        var url = '/?/' + redirectPath;
-        if (search && search !== '?/' + redirectPath) {
-          url += search.replace('?', '&');
+      // Build redirect URL
+      var redirectPath = path.slice(1); // Remove leading /
+      if (redirectPath) {
+        // Convert path segments to query parameter
+        var url = '/?/' + redirectPath.replace(/\//g, '/');
+        if (search && search[1] !== '/') {
+          // Append additional query parameters
+          url += '&' + search.slice(1);
         }
         if (hash) {
           url += hash;
         }
         window.location.replace(url);
+      } else {
+        // If already at root, just go to index
+        window.location.replace('/');
       }
     </script>
   </body>
